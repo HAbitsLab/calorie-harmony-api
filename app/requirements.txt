@@ -1,0 +1,9 @@
+fastapi==0.48.0
+joblib==0.14.1
+numpy==1.18.1
+pandas==0.24.2
+plotly==4.8.1
+starlette==0.12.9
+uvicorn==0.11.2
+xgboost==0.80
+python-multipart
