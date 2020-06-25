@@ -1,4 +1,4 @@
-FROM tiangolo/uvicorn-gunicorn-fastapi:python3.7
+FROM tiangolo/uvicorn-gunicorn-fastapi:python3.6
 
 RUN apt-get update -y
 RUN apt-get install -y python3-pip python3-dev build-essential
