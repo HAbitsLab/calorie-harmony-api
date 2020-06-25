@@ -1,0 +1,71 @@
+{% extends "layout.html" %}
+
+{% block content %}
+{% block javascript %}
+    <script type="text/javascript">
+        {% include "js/scripts.js" %}
+    </script>
+    <!-- The contents of myscript.js will be loaded inside the script tag -->
+{% endblock %}
+
+<div class="ui stackable two column divided grid container">
+    <div class="row">
+      <div class="column">
+        <div class="ui segment">
+            <h3>Actigraph data</h3>
+            <div class="ui fluid segment">
+                <form action="" id="upload_acti" method="post" enctype="multipart/form-data">
+                    <input class="ui button primary" type="file" (change)="fileEvent($event)" class="ui inputfile" id="file" name="file" />
+                    <button class="positive ui button" type="submit" value="Upload" id="load_acti_data"><i class="ui upload icon"></i> Load Data</button>
+                </form>
+            </div>
+            <!-- <label for="embedpollfileinput" class="ui huge red right floated button">
+              <i class="ui upload icon"></i> 
+              Upload File
+            </label> -->
+            
+        <table id="acti_met_table" class="ui celled table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Mets Estimate</th>
+                </tr>
+            </thead>
+            <tbody>
+            </table>
+        </div>
+      </div>
+      <div class="column">
+        <div class="ui segment">
+            <h3>Wrist sensor data</h3>
+            <p>2 files, accel and gyro</p>
+            <div class="ui fluid segment">
+                <form action="" id="upload_wrist" method="post" enctype="multipart/form-data">
+                    <input class="ui button primary" type="file" (change)="fileEvent($event)" class="ui inputfile" id="files" name="files" multiple/>
+                    <button class="positive ui button" type="submit" value="Upload" id="load_wrist_data"><i class="ui upload icon"></i> Load Data</button>
+                    <ul id="output"></ul>
+                </form>
+            </div>
+            <!-- <label for="embedpollfileinput" class="ui huge red right floated button">
+              <i class="ui upload icon"></i> 
+              Upload File
+            </label> -->
+            
+        <table id="wrist_met_table" class="ui celled table">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Mets Estimate</th>
+                </tr>
+            </thead>
+            <tbody>
+            </table>
+        </div>
+      </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+      
+{% endblock %}

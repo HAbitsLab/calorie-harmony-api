@@ -26,7 +26,7 @@ def process_wrist_data(wrist_data):
         # TODO: log error, alert user in api get
         return 1
     else:
-        for df in wrist_data: # check columns names in df for gyro vs accel
+        for df in wrist_data:  # check columns names in df for gyro vs accel
             if "accX" in df.columns:
                 df_accel = df
             elif "rotX" in df.columns:
