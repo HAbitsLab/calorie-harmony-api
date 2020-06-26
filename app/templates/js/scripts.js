@@ -1,4 +1,7 @@
+var updateTableInterval = null
+
 $(document).ready(function() {
+
     $('#upload_acti').submit(function(event){
         event.preventDefault();
         console.log("Loading data")
@@ -7,6 +10,12 @@ $(document).ready(function() {
         console.log(files)
         formdata.append('file',files);
         console.log(formdata)
+        
+        updateTableInterval = setInterval(function() {
+            updateActi()
+          }, 1000);
+        $('#acti-files').append('<div id="acti_loading" class="ui active inverted dimmer"><div class="ui large text loader">Loading</div></div>')
+        
         $.ajax({
             url: '/actifile/',
             type: 'POST',
@@ -14,21 +23,10 @@ $(document).ready(function() {
             contentType: false,
             processData: false,
             success: function(data, textStatus, jqXHR) {
-                console.log(data)
-                var Time = (data.data.Time);
-                var Mets = (data.data["ActiGraph VM3 Estimation (MET)"]);
-                console.log(Mets)
-
-                var trHTML = '';
-                $.each(Time, function (i, item) {
-    
-                    trHTML += '<tr><td>' + Time[i] + '</td><td>' + Mets[i] + '</td></tr>';
-                });
-                
-                $('#acti_met_table').append(trHTML);              
-            }
+                console.log(data) 
+                }
+            });
         });
-    });
 
     var file_list = [];
 
@@ -55,6 +53,12 @@ $(document).ready(function() {
             
         });
         console.log(formdata)
+
+        updateTableInterval = setInterval(function() {
+            updateWrist()
+          }, 5000);
+        $('#wrist-files').append('<div id="wrist_loading" class="ui active inverted dimmer"><div class="ui large text loader">Loading</div></div>')
+       
         $.ajax({
             url: '/wristfiles/',
             type: 'POST',
@@ -63,20 +67,73 @@ $(document).ready(function() {
             processData: false,
             success: function(data, textStatus, jqXHR) {
                 console.log(data)
-                var Time = (data.data.Time);
-                var Mets = (data.data["Wrist Estimation (MET)"]);
-                // console.log(Mets)
-
-                var trHTML = '';
-                $.each(Time, function (i, item) {
-
-                     trHTML += '<tr><td>' + Time[i] + '</td><td>' + Mets[i] + '</td></tr>';
-                });
-                
-                $('#wrist_met_table').append(trHTML);              
             }
         });
-    });
+    });   
 });
 
+
+
+function updateActi() {
+    var acti_tbl = document.getElementById('acti_met_table');
+    if (acti_tbl.rows.length < 2) {
+        console.log("acti table empty")
+        $( "#acti-div" ).load(window.location.href + " #acti-div" );
+    } else {
+        console.log("acti table not empty table")
+        removeActiLoader();    
+        clearInterval(updateTableInterval);
+    }
+}
+
+function updateWrist() {
+    var wrist_tbl = document.getElementById('wrist_met_table');
+    if (wrist_tbl.rows.length < 2) {
+        console.log("wrist table empty")
+        $( "#wrist-div" ).load(window.location.href + " #wrist-div" );
+    } else {
+        console.log("wrist table not empty table")
+        removeWristLoader();    
+        clearInterval(updateTableInterval);
+    }
+}
+
+function removeActiLoader(){
+    $( "#acti_loading" ).fadeOut(500, function() {
+    // fadeOut complete. Remove the loading div
+    $( "#acti_loading" ).remove(); //makes page more lightweight 
+});  
+}
+
+function removeWristLoader(){
+    $( "#wrist_loading" ).fadeOut(500, function() {
+    // fadeOut complete. Remove the loading div
+    $( "#wrist_loading" ).remove(); //makes page more lightweight 
+});  
+}
+
+function plot_data(){
+    console.log("plotting data")
+    $.ajax({
+        url: '/results/',
+        type: 'POST',
+        success: function(data, textStatus, jqXHR) {
+            console.log(data)
+            $('#plotdiv').html(data);           
+        }
+    });
+}
+
+function clear_data(){
+    console.log("plotting data")
+    $.ajax({
+        url: '/clear/',
+        type: 'POST',
+        success: function(data, textStatus, jqXHR) {
+            console.log(data)
+            location.reload();
+            return false;      
+        }
+    });
+}
 

@@ -1,19 +1,17 @@
 {% extends "layout.html" %}
 
 {% block content %}
-{% block javascript %}
-    <script type="text/javascript">
-        {% include "js/scripts.js" %}
-    </script>
-    <!-- The contents of myscript.js will be loaded inside the script tag -->
-{% endblock %}
+
 
 <div class="ui stackable two column divided grid container">
+    <div class="ui right aligned header">
+        <button class="negative ui button" onclick=clear_data() value="plot" id="plot_data"><i class="trash alternate icon"></i>Clear Data</button>
+    </div>
     <div class="row">
       <div class="column">
         <div class="ui segment">
             <h3>Actigraph data</h3>
-            <div class="ui fluid segment">
+            <div id="acti-files"class="ui fluid segment">
                 <form action="" id="upload_acti" method="post" enctype="multipart/form-data">
                     <input class="ui button primary" type="file" (change)="fileEvent($event)" class="ui inputfile" id="file" name="file" />
                     <button class="positive ui button" type="submit" value="Upload" id="load_acti_data"><i class="ui upload icon"></i> Load Data</button>
@@ -23,23 +21,32 @@
               <i class="ui upload icon"></i> 
               Upload File
             </label> -->
-            
+     
+        <div id="acti-div" style="display:block; height:400px; overflow:auto;">       
         <table id="acti_met_table" class="ui celled table">
-            <thead>
+            <thead >
                 <tr>
                     <th>Time</th>
                     <th>Mets Estimate</th>
                 </tr>
             </thead>
             <tbody>
+                {% for acti in actis %}
+                <tr>
+                    <td>{{ acti.timestamp }}</td>
+                    <td>{{ acti.mets }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
             </table>
+        </div>
         </div>
       </div>
       <div class="column">
         <div class="ui segment">
             <h3>Wrist sensor data</h3>
             <p>2 files, accel and gyro</p>
-            <div class="ui fluid segment">
+            <div id="wrist-files" class="ui fluid segment">
                 <form action="" id="upload_wrist" method="post" enctype="multipart/form-data">
                     <input class="ui button primary" type="file" (change)="fileEvent($event)" class="ui inputfile" id="files" name="files" multiple/>
                     <button class="positive ui button" type="submit" value="Upload" id="load_wrist_data"><i class="ui upload icon"></i> Load Data</button>
@@ -51,21 +58,36 @@
               Upload File
             </label> -->
             
+        <div id="wrist-div"  style="display:block; height:400px; overflow:auto;">
         <table id="wrist_met_table" class="ui celled table">
             <thead>
                 <tr>
                     <th>Time</th>
-                    <th>Mets Estimate</th>
+                    <th>Mets</th>
                 </tr>
             </thead>
             <tbody>
+                {% for wrist in wrists %}
+                <tr>
+                    <td>{{ wrist.timestamp }}</td>
+                    <td>{{ wrist.mets }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
             </table>
+        </div>
         </div>
       </div>
         </div>
       </div>
     </div>
 </div>
+<div class="ui raised container segment">
+    <h2 class="ui header">Plot Data</h2>
+    <button class="positive ui button" onclick=plot_data() value="plot" id="plot_data"><i class="file image outline icon"></i>Generate Plot</button>
+    <div id="plotdiv">
+    </div>
+  </div>
 
       
 {% endblock %}

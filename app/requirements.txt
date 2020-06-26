@@ -10,3 +10,5 @@ python-multipart
 jinja2
 sqlalchemy
 sklearn
+async-exit-stack 
+async-generator

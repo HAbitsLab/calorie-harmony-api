@@ -1,10 +1,17 @@
 <html>
     <head>
         <title>Wrist ML Application</title>
+        <h5 class="ui right aligned header">0.0.1</h5>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
         <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
-        
+        {% block javascript %}
+            <script type="text/javascript">
+                {% include "js/scripts.js" %}
+            </script>
+            
+            <!-- The contents of .js will be loaded inside the script tag -->
+        {% endblock %}
     </head>
     <body>
 

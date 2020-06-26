@@ -4,9 +4,10 @@ import numpy as np
 import pandas as pd
 from datetime import timedelta
 from support_functions import get_intensity, extract_features, get_met_vm3, actigraph_add_datetime
-
+from models import Acti
 
 DATA_LENGTH = 1200
+
 
 
 def process_wrist_data(wrist_data):
@@ -60,37 +61,16 @@ def process_wrist_data(wrist_data):
             model_output = model.predict(features)
             model_classification = model_output[0]
 
-        model_estimation = get_model_classification(model_classification, model_estimation)
+        model_estimation = set_realistic_met_estimates(model_classification, model_estimation)
 
         estimation_wrist.append(model_estimation)
 
         start_time += pd.DateOffset(minutes=1)
         # save output
     output_wrist_df = pd.DataFrame(list(zip(minute_wrist, estimation_wrist)),
-                                   columns=['Time', 'Wrist Estimation (MET)'])
-    output_wrist_df = output_wrist_df.fillna('')  # Change the NaN to empty
+                                   columns=['timestamp', 'mets'])
+    output_wrist_df = output_wrist_df.fillna(0)  # Change the NaN to empty
     return output_wrist_df
-
-
-def process_acti_data(df_acti):
-    """
-    Process input actigrapph csv file to produce data frame with time series mets estimates
-    :param df_acti: data frame
-        input structured data frame from actigraph device
-    :return: dataframe
-        process and minute met estimate from actigraph data
-    """
-    actigraph_add_datetime(df_acti)
-    minute_acti = []
-    estimation_acti = []
-    for i in range(len(df_acti)):
-        minute_acti.append(df_acti['Datetime'][i])
-        estimation_acti.append(get_met_vm3(df_acti, df_acti['Datetime'][i]))
-
-    # save output
-    output_acti_df = pd.DataFrame(list(zip(minute_acti, estimation_acti)),
-                               columns=['Time', 'ActiGraph VM3 Estimation (MET)'])
-    return output_acti_df
 
 
 def time_parameters(df):
@@ -156,9 +136,9 @@ def model_features_gyro(df_gyro, start_time, end_time):
     return features
 
 
-def get_model_classification(model_classification, model_estimation):
+def set_realistic_met_estimates(model_classification, model_estimation):
     """
-    Set model estimation from classification and thresholds
+    Set realistic model estimates for mets
     :param model_classification:
         classifiaction with model and gyro
     :param model_estimation:
