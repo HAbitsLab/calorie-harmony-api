@@ -7,8 +7,11 @@ from support_functions import get_intensity, extract_features, get_met_vm3, acti
 from models import Acti
 
 DATA_LENGTH = 1200
+WRIST_DATA = []
 
 
+def upload_single_wrist(wrist_df):
+    WRIST_DATA.append(wrist_df)
 
 def process_wrist_data(wrist_data):
     """
@@ -67,9 +70,12 @@ def process_wrist_data(wrist_data):
 
         start_time += pd.DateOffset(minutes=1)
         # save output
+    
     output_wrist_df = pd.DataFrame(list(zip(minute_wrist, estimation_wrist)),
                                    columns=['timestamp', 'mets'])
     output_wrist_df = output_wrist_df.fillna(0)  # Change the NaN to empty
+
+
     return output_wrist_df
 
 

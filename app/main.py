@@ -13,6 +13,7 @@ from models import Acti, Wrist
 import plotly as py
 from plotly.offline import plot
 import plotly.graph_objects as go
+from fastapi.middleware.cors import CORSMiddleware
 
 
 def get_db():
@@ -25,14 +26,24 @@ def get_db():
     finally:
         db.close()
 
-app = FastAPI() 
+app = FastAPI()
+
+# Cors middleware
+origins = [
+    "*",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 models.Base.metadata.create_all(bind=engine) # create sqlalchemy base model objects
 
 templates = Jinja2Templates(directory="templates") # load frontend template
-
-
-@app.post("/")
 
 
 @app.get("/")
@@ -68,23 +79,22 @@ def process_acti(file):
     output_acti_df.to_sql('acti', engine, if_exists='append', index=False)
 
 
-
 @app.post("/actifile/")
 async def create_upload_file( background_tasks: BackgroundTasks, file: UploadFile = File(...), db : Session = Depends(get_db)):
     """
     upload a single actical file
     """
     background_tasks.add_task(process_acti, file)
-    return {"filename": file.filename,
-            "status": "success"}
+    return {"status": "success"}
 
 
 def process_wrist(files):
-
+    """
+    process list of wrist files
+    """
     data_list = [] # hold dataframe from gyro and accl wrist csv file
     for wrist_file in files:
         # find and load gyro and accel files, then resample to 20hz
-        print(wrist_file.filename)
         df_wrist_og = pd.read_csv(wrist_file.file, index_col=None, header=0)
         df_wrist = resample(df_wrist_og, 'Time', 20, 100)
         df_wrist['Datetime'] = pd.to_datetime(df_wrist['Time'], unit='ms', utc=True).dt.tz_convert(
@@ -101,12 +111,38 @@ async def create_upload_files(background_tasks: BackgroundTasks, files: List[Upl
     upload multiple wrist files, accl and gyro
     """
     background_tasks.add_task(process_wrist, files)
-    return {"files": len(files),
-            "status": "success"}
+    return {"status": "success"}
 
-@app.post("/results/")
+
+def process_single_wrist(wrist_file):
+    """
+    process list of wrist files
+    Needed to handle each file seperate as 30MB max request size for kestral in Azure
+    """
+    # find and load gyro and accel files, then resample to 20hz
+    df_wrist_og = pd.read_csv(wrist_file.file, index_col=None, header=0)
+    df_wrist = resample(df_wrist_og, 'Time', 20, 100)
+    df_wrist['Datetime'] = pd.to_datetime(df_wrist['Time'], unit='ms', utc=True).dt.tz_convert(
+        'America/Chicago').dt.tz_localize(None)
+
+    output_wrist_df = process.process_wrist_data(df_wrist)
+    output_wrist_df.to_sql('wrist', engine, if_exists='append', index=False)
+
+
+@app.post("/wristfile/")
+async def create_upload_wrist(background_tasks: BackgroundTasks, file: UploadFile = File(...), db: Session = Depends(get_db)):
+    """
+    upload SINGLE wrist file either accl or gyro
+    """
+    background_tasks.add_task(process_single_wrist, file)
+    return {"status": "success"}
+
+
+@app.post("/plot/")
 def results(db : Session = Depends(get_db)):
-
+    """
+    plot the data on graph
+    """
     acti = db.query(Acti).all()
     wrist = db.query(Wrist).all()
 
@@ -125,14 +161,16 @@ def results(db : Session = Depends(get_db)):
     fig2.update_layout(title='WRIST/Actigraph Compare MET estimate',
                         xaxis_title='Time',
                         yaxis_title='METs Estimate')
-    my_plot_div = py.offline.plot(fig2, output_type='div')
-    # my_plot_div = plot([Scatter(x=[1, 2, 3], y=[3, 1, 6])], output_type='div')
-    
-    
+    my_plot_div = py.offline.plot(fig2, output_type='div')    
     return {'plot', my_plot_div}
 
+
 @app.post("/clear/")
+"""
+clear data from db
+"""
 def clear_db(db : Session = Depends(get_db)):
+    
     db.query(Acti).delete()
     db.query(Wrist).delete()
     db.commit()
