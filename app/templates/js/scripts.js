@@ -10,7 +10,7 @@ $(document).ready(function() {
         console.log(files)
         formdata.append('file',files);
         console.log(formdata)
-        
+
         updateTableInterval = setInterval(function() {
             updateActi()
           }, 1000);
@@ -78,7 +78,8 @@ function updateActi() {
     var acti_tbl = document.getElementById('acti_met_table');
     if (acti_tbl.rows.length < 2) {
         console.log("acti table empty")
-        $( "#acti-div" ).load(window.location.href + " #acti-div" );
+        $("#acti-div").load(window.location.href + " #acti-div" );
+        return false;
     } else {
         console.log("acti table not empty table")
         removeActiLoader();    
@@ -90,7 +91,8 @@ function updateWrist() {
     var wrist_tbl = document.getElementById('wrist_met_table');
     if (wrist_tbl.rows.length < 2) {
         console.log("wrist table empty")
-        $( "#wrist-div" ).load(window.location.href + " #wrist-div" );
+        $("#wrist-div").load(window.location.href + " #wrist-div" );
+        return false;
     } else {
         console.log("wrist table not empty table")
         removeWristLoader();    
@@ -115,7 +117,7 @@ function removeWristLoader(){
 function plot_data(){
     console.log("plotting data")
     $.ajax({
-        url: '/results/',
+        url: '/plot/',
         type: 'POST',
         success: function(data, textStatus, jqXHR) {
             console.log(data)
@@ -125,15 +127,17 @@ function plot_data(){
 }
 
 function clear_data(){
-    console.log("plotting data")
+    console.log("clearing data")
     $.ajax({
         url: '/clear/',
         type: 'POST',
         success: function(data, textStatus, jqXHR) {
             console.log(data)
-            location.reload();
-            return false;      
+            $("#acti-div").load(window.location.href + " #acti-div" );
+            $("#wrist-div").load(window.location.href + " #wrist-div" );
+            return false;    
         }
     });
+    
 }
 
