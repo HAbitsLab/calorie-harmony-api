@@ -166,11 +166,10 @@ def results(db : Session = Depends(get_db)):
 
 
 @app.post("/clear/")
-"""
-clear data from db
-"""
 def clear_db(db : Session = Depends(get_db)):
-    
+    """
+    clear data from db
+    """
     db.query(Acti).delete()
     db.query(Wrist).delete()
     db.commit()
