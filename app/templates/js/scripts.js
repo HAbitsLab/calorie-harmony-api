@@ -1,7 +1,7 @@
 var updateTableInterval = null
 
 $(document).ready(function() {
-
+    $('.demo.menu .item').tab({history:false}); //tab functioning
     $('#upload_acti').submit(function(event){
         event.preventDefault();
         console.log("Loading data")
@@ -121,7 +121,8 @@ function plot_data(){
         type: 'POST',
         success: function(data, textStatus, jqXHR) {
             console.log(data)
-            $('#plotdiv').html(data);           
+             $('#plotdiv1').html(data["plot1"]);
+             $('#plotdiv2').html(data["plot2"]);          
         }
     });
 }

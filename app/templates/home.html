@@ -84,10 +84,25 @@
 </div>
 <div class="ui raised container segment">
     <h2 class="ui header">Plot Data</h2>
-    <button class="positive ui button" onclick=plot_data() value="plot" id="plot_data"><i class="file image outline icon"></i>Generate Plot</button>
-    <div id="plotdiv">
+    
+    <div class="ui pointing secondary demo menu">
+        <a class="active red item" data-tab="first">One</a>
+        <a class="blue item" data-tab="second">Two</a>
     </div>
+    
+    <div class="ui active tab segment" data-tab="first">
+        WRIST/Actigraph Compare MET estimate
+        </br>
+        <button class="positive ui button" onclick=plot_data() value="plot" id="plot_data"><i class="file image outline icon"></i>Generate Plot</button>
+        <div id="plotdiv1">
+        </div>
+    </div>
+    <div class="ui tab segment" data-tab="second">
+        Met vs Met Plot
+        </br>
+        <button class="positive ui button" onclick=plot_data() value="plot" id="plot_data"><i class="file image outline icon"></i>Generate Plot</button>
+        <div id="plotdiv2">
+        </div>
+    </div>   
   </div>
-
-      
 {% endblock %}

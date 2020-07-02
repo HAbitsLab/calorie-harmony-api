@@ -153,16 +153,28 @@ def results(db : Session = Depends(get_db)):
     wrist_mets = [i.mets for i in wrist]
 
     # plot compare
-    fig2 = go.Figure()
-    fig2.add_trace(
+    fig1 = go.Figure()
+    fig1.add_trace(
         go.Scatter(x=acti_time, y=acti_mets, mode='markers', name='ActiGraph VM3 Estimation (MET)'))
-    fig2.add_trace(
+    fig1.add_trace(
         go.Scatter(x=wrist_time, y=wrist_mets, mode='markers', name='Wrist Estimation (MET)'))
-    fig2.update_layout(title='WRIST/Actigraph Compare MET estimate',
+    fig1.update_layout(title='WRIST/Actigraph Compare MET estimate',
                         xaxis_title='Time',
                         yaxis_title='METs Estimate')
-    my_plot_div = py.offline.plot(fig2, output_type='div')    
-    return {'plot', my_plot_div}
+    plot_div1 = py.offline.plot(fig1, output_type='div')   
+
+
+    fig2 = go.Figure()
+    fig2.add_trace(
+        go.Scatter(x=acti_mets, y=wrist_mets, mode='markers', name='Mets'))
+    fig2.update_layout(title='MET vs MET',
+                        xaxis_title='Actigraph mets',
+                        yaxis_title='Wrist mets')
+    plot_div2 = py.offline.plot(fig2, output_type='div')   
+
+    return {'plot1': plot_div1,
+            'plot2': plot_div2}
+
 
 
 @app.post("/clear/")
