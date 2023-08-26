@@ -1,10 +1,10 @@
-import os
 import joblib
 import numpy as np
 import pandas as pd
 from datetime import timedelta
-from support_functions import get_intensity, extract_features, get_met_vm3, actigraph_add_datetime
-from models import Acti
+from util import time_parameters, process_wrist, get_freq_intensity, get_rmssd, get_train_data, extract_features, resample
+from xgboost import XGBClassifier
+from support_functions import get_intensity, extract_features
 
 DATA_LENGTH = 1200
 WRIST_DATA = []
@@ -12,6 +12,7 @@ WRIST_DATA = []
 
 def upload_single_wrist(wrist_df):
     WRIST_DATA.append(wrist_df)
+
 
 def process_wrist_data(wrist_data):
     """
@@ -22,8 +23,11 @@ def process_wrist_data(wrist_data):
         process and minute met estimate from wrist worn device using preloaded model
     """
     # load the pre-trained model
-    path_model = os.path.join(os.getcwd(), 'xgbc.dat')
-    model = joblib.load(path_model)
+    # classification model
+    model_classification = XGBClassifier()
+    model_classification.load_model("./classification_model.json")
+    # regression model
+    loaded_rf = joblib.load("./trained_model/regression_model.joblib")
 
     if len(wrist_data) != 2:  # not two files uploaded
         print("Incorrect file count")
@@ -44,10 +48,36 @@ def process_wrist_data(wrist_data):
             # TODO: log error, alert user in api get
             return 1
 
-    st_ceil, et_floor = time_parameters(df_gyro)
+    df_acc_resampled = resample(df_accel[['Time', 'accX', 'accY', 'accZ']], 'Time', 20)
+    df_gyro_resampled = resample(df_gyro[['Time', 'rotX', 'rotY', 'rotZ']], 'Time', 20)
 
+    # add datetime from Unix timestamp
+    df_acc = process_wrist(df_acc_resampled)
+    df_gyro = process_wrist(df_gyro_resampled)
+
+    # normalize each column to match the scale from original data
+    targets = ['accX', 'accY', 'accZ']
+    min_max = {'accX': [38.03060682003315, -33.763857951531044],
+               'accY': [34.77019433156978, -43.30149280531167],
+               'accZ': [37.98169060088745, -36.9844767541086]}
+
+    for each_col in targets:
+        max_old = np.max(df_acc[each_col])
+        min_old = np.min(df_acc[each_col])
+        value = df_acc[each_col]
+        max_acc = min_max[each_col][0]
+        min_acc = min_max[each_col][1]
+        df_acc[each_col] = (max_acc - min_acc) / (max_old - min_old) * (value - max_old) + max_acc
+
+    # segmentation and feature extraction
+    st_ceil, et_floor = time_parameters(df_gyro)  # get start and end time of gyroscope
+
+    window_size = 60
     minute_wrist = []
-    estimation_wrist = []
+    l_intensity_freq = []
+    l_intensity_rmssd_l1 = []
+    data_training = []
+
     start_time = st_ceil
 
     # Examine each minute
@@ -55,28 +85,47 @@ def process_wrist_data(wrist_data):
         minute_wrist.append(start_time)
         end_time = start_time + pd.DateOffset(minutes=1)
 
-        model_estimation = model_estimate_accl(df_accel, start_time, end_time)
+        temp = df_acc.loc[(df_acc['Datetime'] >= start_time) & (df_acc['Datetime'] < end_time)].reset_index(drop=True)
+        l_intensity_freq.append(get_freq_intensity(temp, 100, 1, False))
+        l_intensity_rmssd_l1.append(get_rmssd(temp, norm='l1'))
 
-        features = model_features_gyro(df_gyro, start_time, end_time)
-        if features.size == 0:
-            model_classification = -1
-        else:
-            model_output = model.predict(features)
-            model_classification = model_output[0]
-
-        model_estimation = set_realistic_met_estimates(model_classification, model_estimation)
-
-        estimation_wrist.append(model_estimation)
-
+        data_training.append(
+            get_train_data(df_gyro, start_time, window_size, 'gyro') + get_train_data(df_acc, start_time, window_size,
+                                                                                      'acc'))
         start_time += pd.DateOffset(minutes=1)
-        # save output
-    
-    output_wrist_df = pd.DataFrame(list(zip(minute_wrist, estimation_wrist)),
-                                   columns=['timestamp', 'mets'])
-    output_wrist_df = output_wrist_df.fillna(0)  # Change the NaN to empty
+
+    for i in range(len(data_training)):
+        for j in range(6):
+            if (data_training[i][j].shape[0] != window_size * 20):
+                s_temp = pd.Series([0] * int(window_size * 20 - data_training[i][j].shape[0]))
+                data_training[i][j] = data_training[i][j].append(s_temp, ignore_index=True)
+
+    np_training = np.array(data_training)
+    data_train = extract_features(np_training)
+
+    estimation = []
+    # 1st stage classification
+    classification = model_classification.predict(data_train)
+
+    # Need Demographic info
+    gender = 1.0
+    age = 34
+    BMI = 36
+
+    # 2nd stage regression
+    for i in range(len(classification)):
+        if (classification[i] == 0):
+            estimation.append(1.0)
+        else:
+            # complete feature for regression model (TODO)
+            # 'gender', 'age', 'BMI', 'Intensity (Freq)', 'gender_age','gender_BMI','age_BMI','age_gender_BMI', 'Intensity (RMSSD_l1)'
+            feature_complete = [gender, age, BMI] + [l_intensity_freq[i]] + [gender * age, gender * BMI, age * BMI,
+                                                                             age * gender * BMI] + [
+                                   l_intensity_rmssd_l1[i]]
+            estimation.append(loaded_rf.predict(np.array(feature_complete).reshape(1, 9))[0])
 
 
-    return output_wrist_df
+    return pd.DataFrame({'timstamp':minute_wrist, 'mets':estimation})
 
 
 def time_parameters(df):
