@@ -27,7 +27,7 @@ def process_wrist_data(wrist_data):
     model_classification = XGBClassifier()
     model_classification.load_model("./classification_model.json")
     # regression model
-    loaded_rf = joblib.load("./trained_model/regression_model.joblib")
+    loaded_rf = joblib.load("./regression_model.joblib")
 
     if len(wrist_data) != 2:  # not two files uploaded
         print("Incorrect file count")
