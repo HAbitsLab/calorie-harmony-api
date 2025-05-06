@@ -98,7 +98,7 @@ def process_wrist_data(wrist_data):
         for j in range(6):
             if (data_training[i][j].shape[0] != window_size * 20):
                 s_temp = pd.Series([0] * int(window_size * 20 - data_training[i][j].shape[0]))
-                data_training[i][j] = data_training[i][j].append(s_temp, ignore_index=True)
+                data_training[i][j] = pd.concat([data_training[i][j], s_temp], ignore_index=True)
 
     np_training = np.array(data_training)
     data_train = extract_features(np_training)
