@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import timedelta
 from util import time_parameters, process_wrist, get_freq_intensity, get_rmssd, get_train_data, extract_features, resample
 from xgboost import XGBClassifier
-from support_functions import get_intensity, extract_features
+from support_functions import get_intensity#, extract_features
 
 DATA_LENGTH = 1200
 WRIST_DATA = []
@@ -124,8 +124,8 @@ def process_wrist_data(wrist_data):
                                    l_intensity_rmssd_l1[i]]
             estimation.append(loaded_rf.predict(np.array(feature_complete).reshape(1, 9))[0])
 
-
-    return pd.DataFrame({'timstamp':minute_wrist, 'mets':estimation})
+    print("Done Processing Wrist")
+    return pd.DataFrame({'timestamp':minute_wrist, 'mets':estimation})
 
 
 def time_parameters(df):
