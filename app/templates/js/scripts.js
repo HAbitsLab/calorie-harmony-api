@@ -71,8 +71,6 @@ $(document).ready(function() {
         });
     });   
 
-    // Show help modal on page load
-    $('#help-modal').modal('show');
     // Show help modal on help button click
     $('#help-btn').on('click', function() {
         $('#help-modal').modal('show');

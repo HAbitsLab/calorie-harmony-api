@@ -2,109 +2,136 @@
 
 {% block content %}
 
-
-<div class="ui stackable two column divided grid container">
-    <div class="ui right aligned header">
-        <button class="negative ui button" onclick=clear_data() value="clear" id="clear_data"><i class="trash alternate icon"></i>Clear Data</button>
-    </div>
-    <div class="row">
-      <div class="column">
-        <div class="ui segment">
-            <h3>Actigraph data</h3>
-            <div id="acti-files"class="ui fluid segment">
+<div class="ui grid">
+  <div class="row">
+    <div class="twelve wide column">
+      <!-- Main content starts -->
+      <div class="ui stackable two column divided grid" style="width: 100%;">
+        <div class="ui right aligned header">
+          <button class="negative ui button" onclick=clear_data() value="clear" id="clear_data"><i class="trash alternate icon"></i>Clear Data</button>
+        </div>
+        <div class="row">
+          <div class="column">
+            <div class="ui segment">
+              <h3>Actigraph data</h3>
+              <p>1 file .csv format</p>
+              <div id="acti-files" class="ui fluid segment">
                 <form action="" id="upload_acti" method="post" enctype="multipart/form-data">
-                    <input class="ui button primary" type="file" (change)="fileEvent($event)" class="ui inputfile" id="file" name="file" />
-                    <button class="positive ui button" type="submit" value="Upload" id="load_acti_data"><i class="ui upload icon"></i> Load Data</button>
+                  <input class="ui button primary" type="file" (change)="fileEvent($event)" class="ui inputfile" id="file" name="file" />
+                  <button class="positive ui button" type="submit" value="Upload" id="load_acti_data"><i class="ui upload icon"></i> Load Data</button>
                 </form>
+              </div>
+              <div id="acti-div" style="display:block; height:400px; overflow:auto;">
+                <table id="acti_met_table" class="ui celled table">
+                  <thead>
+                    <tr>
+                      <th>Time</th>
+                      <th>Mets Estimate</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for acti in actis %}
+                    <tr>
+                      <td>{{ acti.timestamp }}</td>
+                      <td>{{ acti.mets }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
             </div>
-            <!-- <label for="embedpollfileinput" class="ui huge red right floated button">
-              <i class="ui upload icon"></i> 
-              Upload File
-            </label> -->
-     
-        <div id="acti-div" style="display:block; height:400px; overflow:auto;">       
-        <table id="acti_met_table" class="ui celled table">
-            <thead >
-                <tr>
-                    <th>Time</th>
-                    <th>Mets Estimate</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for acti in actis %}
-                <tr>
-                    <td>{{ acti.timestamp }}</td>
-                    <td>{{ acti.mets }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-            </table>
-        </div>
-        </div>
-      </div>
-      <div class="column">
-        <div class="ui segment">
-            <h3>Wrist sensor data</h3>
-            <p>2 files, accel and gyro</p>
-            <div id="wrist-files" class="ui fluid segment">
+          </div>
+          <div class="column">
+            <div class="ui segment">
+              <h3>Wrist sensor data</h3>
+              <p>2 files, accel and gyro</p>
+              <div id="wrist-files" class="ui fluid segment">
                 <form action="" id="upload_wrist" method="post" enctype="multipart/form-data">
-                    <input class="ui button primary" type="file" (change)="fileEvent($event)" class="ui inputfile" id="files" name="files" multiple/>
-                    <button class="positive ui button" type="submit" value="Upload" id="load_wrist_data"><i class="ui upload icon"></i> Load Data</button>
-                    <ul id="output"></ul>
+                  <input class="ui button primary" type="file" (change)="fileEvent($event)" class="ui inputfile" id="files" name="files" multiple />
+                  <button class="positive ui button" type="submit" value="Upload" id="load_wrist_data"><i class="ui upload icon"></i> Load Data</button>
+                  <ul id="output"></ul>
                 </form>
+              </div>
+              <div id="wrist-div" style="display:block; height:400px; overflow:auto;">
+                <table id="wrist_met_table" class="ui celled table">
+                  <thead>
+                    <tr>
+                      <th>Time</th>
+                      <th>Mets</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for wrist in wrists %}
+                    <tr>
+                      <td>{{ wrist.timestamp }}</td>
+                      <td>{{ wrist.mets }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
             </div>
-            <!-- <label for="embedpollfileinput" class="ui huge red right floated button">
-              <i class="ui upload icon"></i> 
-              Upload File
-            </label> -->
-            
-        <div id="wrist-div"  style="display:block; height:400px; overflow:auto;">
-        <table id="wrist_met_table" class="ui celled table">
-            <thead>
-                <tr>
-                    <th>Time</th>
-                    <th>Mets</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for wrist in wrists %}
-                <tr>
-                    <td>{{ wrist.timestamp }}</td>
-                    <td>{{ wrist.mets }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-            </table>
-        </div>
+          </div>
         </div>
       </div>
+      <div class="ui raised container segment" style="padding: 2em; margin: 2em 0; overflow: auto;">
+        <h2 class="ui header">Plot Data</h2>
+        <div class="ui pointing secondary demo menu">
+          <a class="active red item" data-tab="first">One</a>
+          <a class="blue item" data-tab="second">Two</a>
+        </div>
+        <div class="ui active tab segment" data-tab="first">
+          WRIST/Actigraph Compare MET estimate
+          </br>
+          <button class="positive ui button" onclick=plot_data() value="plot" id="plot_data"><i class="file image outline icon"></i>Generate Plot</button>
+          <div id="plotdiv1">
+          </div>
+        </div>
+        <div class="ui tab segment" data-tab="second">
+          Met vs Met Plot
+          </br>
+          <button class="positive ui button" onclick=plot_data() value="plot" id="plot_data"><i class="file image outline icon"></i>Generate Plot</button>
+          <div id="plotdiv2">
+          </div>
         </div>
       </div>
+      <!-- Main content ends -->
     </div>
-</div>
-<div class="ui raised container segment" style="padding: 2em; margin: 2em 0; overflow: auto;">
-    <h2 class="ui header">Plot Data</h2>
-    
-    <div class="ui pointing secondary demo menu">
-        <a class="active red item" data-tab="first">One</a>
-        <a class="blue item" data-tab="second">Two</a>
+    <div class="four wide column">
+      <div class="ui segment" style="height: 100%;">
+        <h3>About</h3>
+        <p>WristMET Calculator — an open-access tool developed to estimate energy expenditure from wrist-worn wearable sensor data. Using accelerometer and gyroscope signals from commercial smartwatches, this calculator applies a machine learning model to generate minute-by-minute metabolic equivalent of task (MET) estimates. Sample data can be obtained from <a href="https://github.com/HAbitsLab/WristBased-EE-Estimation/tree/main/data">here</a>.</p>
+        <p>The underlying algorithm was trained and validated in both laboratory and free-living settings, with a focus on inclusive performance across individuals with obesity — a population often underrepresented in wearable energy expenditure models. Compared to widely used actigraphy-based methods, the WristMET Calculator demonstrates improved accuracy and generalizability, particularly for wrist-mounted devices.</p>
+        <h3>Instructions</h3>
+        <ol>
+          <li>Upload your Actigraph and Wrist sensor data using the forms on the left.</li>
+          <li>Wait for the data to be processed and displayed in the tables.</li>
+          <li>Use the Plot Data section to visualize and compare MET estimates.</li>
+          <li>Click the Help button in the header for more information.</li>
+          <li>Contact us if you have any questions or need support.</li>
+          <li>File formats:</li>
+          <ul>
+            <li>ActiGraph Data</li>
+            <ul>
+              <li>name: actigraph.csv</li>
+              <li>ActiGraph data exported from the ActiLife software package can be uploaded to our tool as-is.</li>
+            </ul>
+            <li>Smartwatch Wrist Data</li>
+            <ul>
+              <li>name: accelerometer.csv and gyroscope.csv</li>
+              <li>Required headers in accelerometer.csv: Time, accX, accY, accZ</li>
+              <li>Required headers in gyroscope.csv: Time, rotX, rotY, rotZ</li>
+            </ul>
+
+            </ul>
+              <!-- <li>Timestamp: Time</li> -->
+            <!-- <li>Wrist sensor: accelerometer.csv and gyroscope.csv</li> -->
+          </ul>
+        </ol>
+      </div>
     </div>
-    
-    <div class="ui active tab segment" data-tab="first">
-        WRIST/Actigraph Compare MET estimate
-        </br>
-        <button class="positive ui button" onclick=plot_data() value="plot" id="plot_data"><i class="file image outline icon"></i>Generate Plot</button>
-        <div id="plotdiv1">
-        </div>
-    </div>
-    <div class="ui tab segment" data-tab="second">
-        Met vs Met Plot
-        </br>
-        <button class="positive ui button" onclick=plot_data() value="plot" id="plot_data"><i class="file image outline icon"></i>Generate Plot</button>
-        <div id="plotdiv2">
-        </div>
-    </div>   
   </div>
+</div>
 
 <!-- Help Modal -->
 <div class="ui modal" id="help-modal">
@@ -117,7 +144,7 @@
       <i class="big info circle icon"></i>
     </div>
     <div class="description">
-      <p>WristMET Calculator — an open-access tool developed to estimate energy expenditure from wrist-worn wearable sensor data. Using accelerometer and gyroscope signals from commercial smartwatches, this calculator applies a machine learning model to generate minute-by-minute metabolic equivalent of task (MET) estimates..</p>
+      <p>WristMET Calculator — an open-access tool developed to estimate energy expenditure from wrist-worn wearable sensor data. Using accelerometer and gyroscope signals from commercial smartwatches, this calculator applies a machine learning model to generate minute-by-minute metabolic equivalent of task (MET) estimates. Sample data can be obtained from <a href="https://github.com/HAbitsLab/WristBased-EE-Estimation/tree/main/data">here</a>.</p>
       <p>The underlying algorithm was trained and validated in both laboratory and free-living settings, with a focus on inclusive performance across individuals with obesity — a population often underrepresented in wearable energy expenditure models. Compared to widely used actigraphy-based methods, the WristMET Calculator demonstrates improved accuracy and generalizability, particularly for wrist-mounted devices.</p>
       <p>This tool is based on the study:
         <strong>Wei et al., "Developing and comparing a new BMI-inclusive energy expenditure algorithm on wrist-worn wearables," Scientific Reports (2025).</strong></p>
@@ -132,19 +159,23 @@
 </div>
 
 <!-- Footer -->
-<div class="ui inverted vertical footer segment" style="background-color: #2185d0; margin-top: 3em;">
-    <div class="ui container">
+<div class="ui inverted vertical footer segment" style="background-color: #2185d0; margin-top: 0em; width: 100vw; position: relative; left: 50%; right: 50%; margin-left: -50vw; margin-right: -50vw;">
+    <div class="ui container" style="width: 80%;">
         <div class="ui stackable inverted divided equal height stackable grid">
             <div class="three wide column">
                 <h4 class="ui inverted header">About</h4>
                 <div class="ui inverted link list">
-                    <a href="#" class="item">Sitemap</a>
-                    <a href="#" class="item">Contact Us</a>
+                    <!-- <a href="#" class="item">Sitemap</a> -->
+                    <a href="mailto:chris.romano@northwestern.edu" class="item">Contact Us</a>
                 </div>
             </div>
             <div class="seven wide column">
-                <h4 class="ui inverted header">Footer Header</h4>
-                <p>Extra space for a call to action inside the footer that could help re-engage users.</p>
+                <h4 class="ui inverted header">The HABits Lab Wrist MET Calculator</h4>
+                <p>This tool is based on the study:
+                    <strong>Wei et al., "Developing and comparing a new BMI-inclusive energy expenditure algorithm on wrist-worn wearables," Scientific Reports (2025).</strong></p>
+                <p>Link to the paper (coming soon)</p>
+                <p>The WristMET Calculator was created by the <a href="https://www.thehabitslab.com/" style="color: purple;">HABits Lab</a> at Northwestern University. We invite researchers to use this tool and contribute to the development of inclusive, transparent models for human activity sensing.</p>
+                <!-- <p></p> -->
             </div>
         </div>
     </div>
