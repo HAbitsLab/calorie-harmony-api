@@ -14,9 +14,21 @@
         {% endblock %}
     </head>
     <body>
-
-        <div class="ui container">
-            <h2>Wrist ML Sample</h2>
+        <div class="ui fixed inverted blue menu">
+            <div class="ui container">
+                <a class="header item">
+                    <h2 style="margin: 0;">Wrist ML Sample</h2>
+                </a>
+                <div class="right menu">
+                    <a class="item">
+                        <button id="help-btn" class="ui icon blue button" title="Help">
+                            <i class="question circle outline icon"></i>
+                        </button>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="ui main container" style="margin-top: 7em; padding-top: 1em; padding-bottom: 8em; overflow-y: auto;">
             {% block content %}
             
             {% endblock %}

@@ -82,7 +82,7 @@
       </div>
     </div>
 </div>
-<div class="ui raised container segment">
+<div class="ui raised container segment" style="padding: 2em; margin: 2em 0; overflow: auto;">
     <h2 class="ui header">Plot Data</h2>
     
     <div class="ui pointing secondary demo menu">
@@ -105,4 +105,48 @@
         </div>
     </div>   
   </div>
+
+<!-- Help Modal -->
+<div class="ui modal" id="help-modal">
+  <i class="close icon"></i>
+  <div class="header">
+    Welcome to the WristMET Calculator!
+  </div>
+  <div class="image content">
+    <div class="image">
+      <i class="big info circle icon"></i>
+    </div>
+    <div class="description">
+      <p>WristMET Calculator — an open-access tool developed to estimate energy expenditure from wrist-worn wearable sensor data. Using accelerometer and gyroscope signals from commercial smartwatches, this calculator applies a machine learning model to generate minute-by-minute metabolic equivalent of task (MET) estimates..</p>
+      <p>The underlying algorithm was trained and validated in both laboratory and free-living settings, with a focus on inclusive performance across individuals with obesity — a population often underrepresented in wearable energy expenditure models. Compared to widely used actigraphy-based methods, the WristMET Calculator demonstrates improved accuracy and generalizability, particularly for wrist-mounted devices.</p>
+      <p>This tool is based on the study:
+        <strong>Wei et al., "Developing and comparing a new BMI-inclusive energy expenditure algorithm on wrist-worn wearables," Scientific Reports (2025).</strong></p>
+    <p>Link to the paper (coming soon)</p>
+    <p>The WristMET Calculator was created by the <a href="https://www.thehabitslab.com/">HABits Lab</a> at Northwestern University. We invite researchers to use this tool and contribute to the development of inclusive, transparent models for human activity sensing.</p>
+    <p>Feel free to open this at any point in time again by clicking the Help Icon</p>
+    </div>
+  </div>
+  <div class="actions">
+    <div class="ui approve button">Got it!</div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="ui inverted vertical footer segment" style="background-color: #2185d0; margin-top: 3em;">
+    <div class="ui container">
+        <div class="ui stackable inverted divided equal height stackable grid">
+            <div class="three wide column">
+                <h4 class="ui inverted header">About</h4>
+                <div class="ui inverted link list">
+                    <a href="#" class="item">Sitemap</a>
+                    <a href="#" class="item">Contact Us</a>
+                </div>
+            </div>
+            <div class="seven wide column">
+                <h4 class="ui inverted header">Footer Header</h4>
+                <p>Extra space for a call to action inside the footer that could help re-engage users.</p>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
