@@ -65,7 +65,7 @@ def process_acti(file):
     """
     process actical files
     """
-    df_acti_og = pd.read_csv(file.file, index_col=None, header=1)
+    df_acti_og = pd.read_csv(file.file, index_col=None)
 
     actigraph_add_datetime(df_acti_og)
     minute_acti = []
@@ -152,28 +152,105 @@ def results(db : Session = Depends(get_db)):
     wrist_time = [i.timestamp for i in wrist]
     wrist_mets = [i.mets for i in wrist]
 
-    # plot compare
+    # Figure 1: plot Proposed vs ActiGraph METs
     fig1 = go.Figure()
-    fig1.add_trace(
-        go.Scatter(x=acti_time, y=acti_mets, mode='markers', name='ActiGraph VM3 Estimation (MET)'))
-    fig1.add_trace(
-        go.Scatter(x=wrist_time, y=wrist_mets, mode='markers', name='Wrist Estimation (MET)'))
-    fig1.update_layout(title='WRIST/Actigraph Compare MET estimate',
-                        xaxis_title='Time',
-                        yaxis_title='METs Estimate')
+    fig1.add_trace(go.Scatter(
+        x = acti_mets,
+        y = wrist_mets,
+        mode='markers',
+        name='METs'
+    ))
+    fig1.update_layout(
+        title='MET Comparison: Proposed vs ActiGraph',
+        xaxis_title='MET (ActiGraph)',
+        yaxis_title='MET (Proposed)',
+        template='plotly_white'
+    )
     plot_div1 = py.offline.plot(fig1, output_type='div')   
 
-
+    # Figure 2: plot METs trend over timestamp
     fig2 = go.Figure()
-    fig2.add_trace(
-        go.Scatter(x=acti_mets, y=wrist_mets, mode='markers', name='Mets'))
-    fig2.update_layout(title='MET vs MET',
-                        xaxis_title='Actigraph mets',
-                        yaxis_title='Wrist mets')
+    fig2.add_trace(go.Scatter(
+        x=acti_time,
+        y=acti_mets,
+        mode='lines+markers',
+        name='ActiGraph MET'
+    ))
+    fig2.add_trace(go.Scatter(
+        x=wrist_time,
+        y=wrist_mets,
+        mode='lines+markers',
+        name='Proposed/Wrist MET'
+    ))
+    fig2.update_layout(
+        title='METs Trend: ActiGraph vs. Proposed',
+        xaxis_title='Time',
+        yaxis_title='METs',
+        template='plotly_white',
+        legend=dict(x=0, y=1.1, orientation='h')
+    )
     plot_div2 = py.offline.plot(fig2, output_type='div')   
 
+    # Figure 3: plot cumulative kCal over timestamp
+    # weight (for kCal)
+    weight_kg = 94.5
+    df_acti = pd.DataFrame({'timestamp': acti_time, 'mets': acti_mets})
+    df_wrist = pd.DataFrame({'timestamp': wrist_time, 'mets': wrist_mets})
+    df_acti['timestamp'] = pd.to_datetime(df_acti['timestamp'])
+    df_wrist['timestamp'] = pd.to_datetime(df_wrist['timestamp'])
+    df_acti['kcal'] = df_acti['mets'] * 3.5 * weight_kg / 200
+    df_wrist['kcal'] = df_wrist['mets'] * 3.5 * weight_kg / 200
+    df_acti['cumulative_kcal'] = df_acti['kcal'].cumsum()
+    df_wrist['cumulative_kcal'] = df_wrist['kcal'].cumsum()
+    final_acti_kcal = df_acti['cumulative_kcal'].iloc[-1]
+    final_acti_time = df_acti['timestamp'].iloc[-1]
+    final_wrist_kcal = df_wrist['cumulative_kcal'].iloc[-1]
+    final_wrist_time = df_wrist['timestamp'].iloc[-1]
+
+    fig3 = go.Figure()
+    fig3.add_trace(go.Scatter(
+        x=df_acti['timestamp'],
+        y=df_acti['cumulative_kcal'],
+        mode='lines+markers',
+        name='ActiGraph Cumulative kCal'
+    ))
+    fig3.add_trace(go.Scatter(
+        x=df_wrist['timestamp'],
+        y=df_wrist['cumulative_kcal'],
+        mode='lines+markers',
+        name='Proposed Cumulative kCal'
+    ))
+    fig3.add_annotation(
+        x=final_acti_time,
+        y=final_acti_kcal,
+        text=f"{final_acti_kcal:.1f} kcal",
+        showarrow=True,
+        arrowhead=2,
+        ax=0,
+        ay=-20,
+        font=dict(color="blue")
+    )
+    fig3.add_annotation(
+        x=final_wrist_time,
+        y=final_wrist_kcal,
+        text=f"{final_wrist_kcal:.1f} kcal",
+        showarrow=True,
+        arrowhead=2,
+        ax=0,
+        ay=-20,
+        font=dict(color="green")
+    )
+    fig3.update_layout(
+        title='Cumulative Energy Expenditure Over Time',
+        xaxis_title='Time',
+        yaxis_title='Cumulative kCal',
+        template='plotly_white',
+        legend=dict(x=0, y=1.1, orientation='h')
+    )
+    plot_div3 = py.offline.plot(fig3, output_type='div')
     return {'plot1': plot_div1,
-            'plot2': plot_div2}
+            'plot2': plot_div2,
+            'plot3': plot_div3}
 
 
 
