@@ -127,7 +127,8 @@ function plot_data(){
         success: function(data, textStatus, jqXHR) {
             console.log(data)
              $('#plotdiv1').html(data["plot1"]);
-             $('#plotdiv2').html(data["plot2"]);          
+             $('#plotdiv2').html(data["plot2"]);
+             $('#plotdiv3').html(data["plot3"]);
         }
     });
 }

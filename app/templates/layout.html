@@ -9,9 +9,22 @@
             <script type="text/javascript">
                 {% include "js/scripts.js" %}
             </script>
-            
-            <!-- The contents of .js will be loaded inside the script tag -->
         {% endblock %}
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+            .main-content {
+                flex: 1;
+                width: 90%;
+                margin: 5em auto 0 auto;
+                padding: 0.5em;
+            }
+        </style>
     </head>
     <body>
         <div class="ui fixed inverted blue menu">
@@ -28,9 +41,8 @@
                 </div>
             </div>
         </div>
-        <div class="ui main container" style="width: 90%; margin: 5em auto 0 auto; padding-top: 0.5em; padding-bottom: 0.5em; padding-left: 0.5em; padding-right: 0.5em;">
+        <div class="main-content">
             {% block content %}
-            
             {% endblock %}
         </div>
     </body>
