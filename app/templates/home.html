@@ -82,7 +82,7 @@
           <a class="green item" data-tab="third">Three</a>
         </div>
         <div class="ui active tab segment" data-tab="first" style="overflow: visible;">
-          WRIST/Actigraph Compare MET estimate
+          Wrist & Actigraph METs Comparison
           </br>
           <button class="positive ui button" onclick=plot_data() value="plot" id="plot_data"><i class="file image outline icon"></i>Generate Plot</button>
           <div id="plotdiv1" style="height: 600px; position: relative; overflow: hidden;">
@@ -91,7 +91,7 @@
           </div>
         </div>
         <div class="ui tab segment" data-tab="second" style="overflow: visible;">
-          Met vs Met Plot
+          Wrist & Actigraph METs Over Time
           </br>
           <button class="positive ui button" onclick=plot_data() value="plot" id="plot_data"><i class="file image outline icon"></i>Generate Plot</button>
           <div id="plotdiv2" style="height: 600px; position: relative; overflow: hidden;">
@@ -100,7 +100,7 @@
           </div>
         </div>
         <div class="ui tab segment" data-tab="third" style="overflow: visible;">
-          Cumulative MET Plot
+          Cumulative kCal estimation
           </br>
           <button class="positive ui button" onclick=plot_data() value="plot" id="plot_data"><i class="file image outline icon"></i>Generate Plot</button>
           <div id="plotdiv3" style="height: 600px; position: relative; overflow: hidden;">
@@ -127,12 +127,12 @@
           <ul>
             <li>ActiGraph Data</li>
             <ul>
-              <li>name: actigraph.csv</li>
+              <li>name: Actigraph.csv</li>
               <li>ActiGraph data exported from the ActiLife software package can be uploaded to our tool as-is.</li>
             </ul>
             <li>Smartwatch Wrist Data</li>
             <ul>
-              <li>name: accelerometer.csv and gyroscope.csv</li>
+              <li>name: Accelerometer_Data.csv and Gyroscope_Data.csv</li>
               <li>Required headers in accelerometer.csv: Time, accX, accY, accZ</li>
               <li>Required headers in gyroscope.csv: Time, rotX, rotY, rotZ</li>
             </ul>
